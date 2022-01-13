@@ -36,7 +36,7 @@ class WeatherViewController: UIViewController {
   @IBOutlet weak var currentIcon: UIImageView!
   @IBOutlet weak var currentSummaryLabel: UILabel!
   @IBOutlet weak var forecastSummary: UITextView!
-  
+    
   override func viewDidLoad() {
     
     // Binds cityLabel to viewModel.locationName
@@ -60,4 +60,23 @@ class WeatherViewController: UIViewController {
       self?.forecastSummary.text = forecast
     }
   }
+    @IBAction func promptForLocation(_ sender: Any) {
+      //
+      let alert = UIAlertController(
+        title: "Choose location",
+        message: nil,
+        preferredStyle: .alert)
+      alert.addTextField()
+      
+      //
+      let submitAction = UIAlertAction(
+        title: "Submit",
+        style: .default) { [unowned alert, weak self] _ in
+        guard let newLocation = alert.textFields?.first?.text else { return }
+        self?.viewModel.changeLocation(to: newLocation)
+      }
+      alert.addAction(submitAction)
+      
+      present(alert, animated: true)
+    }
 }
