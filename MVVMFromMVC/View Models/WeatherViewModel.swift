@@ -1,4 +1,4 @@
-/// Copyright (c) 2019 Razeware LLC
+/// Copyright (c) 2022 Razeware LLC
 /// 
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +18,10 @@
 /// merger, publication, distribution, sublicensing, creation of derivative works,
 /// or sale is expressly withheld.
 /// 
+/// This project and source code may use libraries or frameworks that are
+/// released under various Open-Source licenses. Use of those libraries and
+/// frameworks are governed by their own individual licenses.
+///
 /// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 /// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 /// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,45 +30,45 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
 
-import UIKit
+import UIKit.UIImage
 
-class WeatherViewController: UIViewController {
-  private let viewModel = WeatherViewModel()
+// Public in order for it to be accessible for 'testing'
+public class WeatherViewModel {
   
+  private static let defaultAddress = "McGaheysville, VA"
+  private let geocoder = LocationGeocoder()
   
-  private let dateFormatter: DateFormatter = {
-    let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "EEEE, MMM d"
-    return dateFormatter
-  }()
-  private let tempFormatter: NumberFormatter = {
-    let tempFormatter = NumberFormatter()
-    tempFormatter.numberStyle = .none
-    return tempFormatter
-  }()
+  // Make the app display "Loading" on launch
+  let locationName = Box("Loading...")
   
-  @IBOutlet weak var cityLabel: UILabel!
-  @IBOutlet weak var dateLabel: UILabel!
-  @IBOutlet weak var currentIcon: UIImageView!
-  @IBOutlet weak var currentSummaryLabel: UILabel!
-  @IBOutlet weak var forecastSummary: UITextView!
-  
-  override func viewDidLoad() {
-
-//    geocoder.geocode(addressString: defaultAddress) { [weak self] locations in
-//      guard
-//        let self = self,
-//        let location = locations.first
-//        else {
-//          return
-//        }
-//      self.cityLabel.text = location.name
-//      self.fetchWeatherForLocation(location)
-//    }
-    
-    // Binds cityLabel to viewModel.locationName
-    viewModel.locationName.bind { [weak self] locationName in
-      self?.cityLabel.text = locationName
+  // Change locationName.value to "Loading..." prior to fetching via geocoder.
+  // When geocoder completes the lookup, update the location name
+  // and fetch the weather information for the location
+  func changeLocation(to newLocation: String) {
+    locationName.value = "Loading..."
+    geocoder.geocode(addressString: newLocation) { [weak self] locations in
+      guard let self = self else { return }
+      if let location = locations.first {
+        self.locationName.value = location.name
+        self.fetchWeatherForLocation(location)
+        return
+      }
     }
+  }
+  
+  private func fetchWeatherForLocation(_ location: Location) {
+    WeatherbitService.weatherDataForLocation(latitude: location.latitude, longitude: location.longitude) { [weak self] (weatherData, error) in
+      guard
+        let self = self,
+        let weatherData = weatherData
+      else {
+        return
+      }
+    }
+  }
+  
+  // starts by setting the location to the default address
+  init() {
+    changeLocation(to: Self.defaultAddress)
   }
 }
