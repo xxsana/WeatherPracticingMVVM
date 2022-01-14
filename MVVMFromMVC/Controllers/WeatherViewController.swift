@@ -60,15 +60,16 @@ class WeatherViewController: UIViewController {
       self?.forecastSummary.text = forecast
     }
   }
+  
     @IBAction func promptForLocation(_ sender: Any) {
-      //
+      // Create an alert controller with a text field
       let alert = UIAlertController(
         title: "Choose location",
         message: nil,
         preferredStyle: .alert)
       alert.addTextField()
       
-      //
+      // Add an action button for submit
       let submitAction = UIAlertAction(
         title: "Submit",
         style: .default) { [unowned alert, weak self] _ in

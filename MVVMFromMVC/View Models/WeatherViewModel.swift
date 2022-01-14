@@ -57,6 +57,7 @@ public class WeatherViewModel {
   let summary = Box(" ")
   let forecastSummary = Box(" ")
   
+  
   // Change locationName.value to "Loading..." prior to fetching via geocoder.
   // When geocoder completes the lookup, update the location name
   // and fetch the weather information for the location
